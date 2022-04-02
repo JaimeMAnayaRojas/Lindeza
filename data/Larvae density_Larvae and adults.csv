@@ -1,0 +1,106 @@
+Regime ,Replicate ,Generation ,Number larvae,Number of adults (that contributed to the egg lay) 
+Control ,1,3,53,184
+Control ,2,3,92,177
+Control ,3,3,60,182
+Control ,4,3,105,168
+Control ,5,3,119,175
+Control ,1,4,29,102
+Control ,2,4,62,94
+Control ,3,4,38,82
+Control ,4,4,36,110
+Control ,5,4,63,85
+Control ,1,5,120,180
+Control ,2,5,161,166
+Control ,3,5,95,177
+Control ,4,5,31,180
+Control ,5,5,83,162
+Control ,1,6,116,131
+Control ,2,6,165,122
+Control ,3,6,132,124
+Control ,4,6,202,125
+Control ,5,6,118,108
+Control ,1,7,58,181
+Control ,2,7,109,179
+Control ,3,7,83,162
+Control ,4,7,145,169
+Control ,5,7,79,177
+Control ,1,8,23,111
+Control ,2,8,66,124
+Control ,3,8,41,135
+Control ,4,8,31,135
+Control ,5,8,79,129
+Control ,1,9,109,170
+Control ,2,9,146,181
+Control ,3,9,187,163
+Control ,4,9,74,177
+Control ,5,9,124,178
+Unmatched,1,3,137,179
+Unmatched,2,3,125,182
+Unmatched,3,3,131,184
+Unmatched,4,3,248,175
+Unmatched,5,3,149,181
+Unmatched,1,4,98,96
+Unmatched,2,4,39,80
+Unmatched,3,4,81,84
+Unmatched,4,4,56,92
+Unmatched,5,4,73,97
+Unmatched,1,5,85,178
+Unmatched,2,5,106,182
+Unmatched,3,5,146,181
+Unmatched,4,5,11,169
+Unmatched,5,5,134,160
+Unmatched,1,6,142,138
+Unmatched,2,6,120,124
+Unmatched,3,6,105,133
+Unmatched,4,6,132,123
+Unmatched,5,6,145,120
+Unmatched,1,7,81,169
+Unmatched,2,7,107,174
+Unmatched,3,7,112,178
+Unmatched,4,7,128,180
+Unmatched,5,7,54,163
+Unmatched,1,8,47,136
+Unmatched,2,8,92,138
+Unmatched,3,8,102,138
+Unmatched,4,8,117,146
+Unmatched,5,8,43,160
+Unmatched,1,9,76,169
+Unmatched,2,9,42,164
+Unmatched,3,9,46,179
+Unmatched,4,9,34,182
+Unmatched,5,9,21,172
+Matched,1,3,155,170
+Matched,2,3,195,184
+Matched,3,3,232,172
+Matched,4,3,225,179
+Matched,5,3,136,180
+Matched,1,4,39,148
+Matched,2,4,52,155
+Matched,3,4,153,132
+Matched,4,4,104,162
+Matched,5,4,149,143
+Matched,1,5,133,182
+Matched,2,5,118,174
+Matched,3,5,146,173
+Matched,4,5,131,175
+Matched,5,5,185,159
+Matched,1,6,89,143
+Matched,2,6,90,146
+Matched,3,6,68,154
+Matched,4,6,86,143
+Matched,5,6,115,125
+Matched,1,7,82,174
+Matched,2,7,105,171
+Matched,3,7,72,180
+Matched,4,7,94,169
+Matched,5,7,102,178
+Matched,1,8,66,119
+Matched,2,8,33,137
+Matched,3,8,74,153
+Matched,4,8,101,125
+Matched,5,8,99,149
+Matched,1,9,98,166
+Matched,2,9,91,173
+Matched,3,9,105,175
+Matched,4,9,143,171
+Matched,5,9,114,179
