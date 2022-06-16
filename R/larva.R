@@ -5,8 +5,15 @@ library(data.table)
 library(dplyr)
 library(readxl)
 library(tseries)
+library(ggpubr)
 
 rm(list=ls(all=TRUE))
+
+LOS <- function(a){
+  
+  b = 100 * length(which(a>0))/length(a)
+  return(b)
+}
 ###########################################################################################################
 # First get the data
 getwd()
@@ -189,36 +196,23 @@ pointdata = data
 pointdata$larvae
 levels(pointdata$Gen) <- c("3","4","5","6","7","8", "9")
 
-(mPlot + geom_point(data = pointdata, 
+plotA <- mPlot + geom_point(data = pointdata, 
                              mapping = aes(x=Gen, y=larvae, colour=Regime),
                              position = position_jitterdodge(dodge.width=0.75),
                              size = 0.75, alpha = 0.3) +
-    theme_bw() + theme(panel.grid.major = element_blank()) + 
-    scale_color_manual(values=c("grey", "black", "red")) + 
-    ylab("Larvae (N)") +
-    xlab("Generation") 
-  )
-
-
-png("plots/Figure-Larvae.png", res = 1000, width = 180*0.7, height = 115*0.7, units = "mm", pointsize = 10)
-
-(mPlot + geom_point(data = pointdata, 
-                    mapping = aes(x=Gen, y=larvae, colour=Regime),
-                    position = position_jitterdodge(dodge.width=0.75),
-                    size = 0.3, alpha = 1) +
     theme_bw() + theme(panel.grid.major = element_blank(), legend.position = c(0.85, .8)) + 
     scale_color_manual(values=c("grey", "black", "red")) + 
     ylab("Larvae (N)") +
-    xlab("Generation") 
-)
+    xlab("Generation") +
+  geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -2, ymax = 255), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -2, ymax = 255),  fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -2, ymax = 255), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
+  geom_rect(aes(xmin = 6.5, xmax = 7.5, ymin = -2, ymax = 255),  fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) 
 
+  
+plotA
 
-graphics.off()
-
-# Now what should we test? 
-
-
-
+##
 df_contrast = data.frame(G3M = post$`b_GenG3:RegimeMatched` / post$`b_GenG3:RegimeControl`,
                          G4M = post$`b_GenG4:RegimeMatched` / post$`b_GenG4:RegimeControl`,
                          G5M = post$`b_GenG5:RegimeMatched` / post$`b_GenG5:RegimeControl`,
@@ -249,22 +243,44 @@ contrast_tab$LOS = apply(df_contrast,2, LOS)
 
 
 
-fp <- ggplot(data=contrast_tab, aes(x=Gen, y=mean, ymin=L95, ymax=U95, colour = Contrast)) +
+##
+df_los = data.frame(     G3= post$`b_GenG3:RegimeMatched` / post$`b_GenG3:RegimeUnmatched`,
+                         G4 = post$`b_GenG4:RegimeMatched` / post$`b_GenG4:RegimeUnmatched`,
+                         G5 = post$`b_GenG5:RegimeMatched` / post$`b_GenG5:RegimeUnmatched`,
+                         G6 = post$`b_GenG6:RegimeMatched` / post$`b_GenG6:RegimeUnmatched`,
+                         G7 = post$`b_GenG7:RegimeMatched`/ post$`b_GenG7:RegimeUnmatched`,
+                         G8 = post$`b_GenG8:RegimeMatched` / post$`b_GenG8:RegimeUnmatched`,
+                         G9 = post$`b_GenG9:RegimeMatched` / post$`b_GenG9:RegimeUnmatched`
+)
+
+
+df_los = data.frame(Gen = 3:9, LOS = apply(log(df_los), 2, LOS))
+
+df_los$Gen = factor(df_los$Gen)
+df_los$y = -2
+##
+
+plotB <- ggplot(data=contrast_tab, aes(x=Gen, y=mean, ymin=L95, ymax=U95, colour = Contrast)) +
   geom_pointrange(size = 0.5, position = pd) + 
   geom_errorbar(aes(ymin=L68, ymax=U68), width=.1, position=pd, alpha =1, size = 1.2) +
-  geom_hline(yintercept=0, lty=2) +  # add a dotted line at x=1 after flip
-  coord_flip() +  # flip coordinates (puts labels on y axis)
-  xlab("Generation") + ylab("Effect size (LRR, 68% and 95% CI)") +
-  theme_bw() + theme( legend.position = c(0.2, .15) ) + 
+  geom_hline(yintercept=0, lty=1, colour = "gray") +  # add a dotted line at x=1 after flip
+  xlab("Generation") + ylab("Effect size (LRR)") +
+  theme_bw() + theme(panel.grid.major = element_blank(), legend.position = "none" ) + 
   scale_color_manual(values=c("black", "red")) 
+plotB <- plotB + geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
+  geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
+  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -1.5, ymax = 1.2),  fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
+  geom_rect(aes(xmin = 6.5, xmax = 7.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) 
+  
 
-print(fp)
+plotB
 
-png("plots/Figure-Contrast.png", res = 1000, width = 180*0.7, height = 115*0.7, units = "mm", pointsize = 10)
+figure <- ggarrange(plotA, plotB,
+                    labels = c("A) ", "B) "), font.label = list(size= 11),
+                    label.x = -0.01, label.y = 1.05, common.legend = T,
+                    ncol = 1, nrow = 2)
+figure
 
-fp
-
+png("plots/Figure-Larvae.png", res = 1000, width = 180*0.7, height = 115*2, units = "mm", pointsize = 10)
+figure
 graphics.off()
-
-contrast_tab
-
