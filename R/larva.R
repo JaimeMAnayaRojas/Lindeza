@@ -10,9 +10,10 @@ rm(list=ls(all=TRUE))
 ###########################################################################################################
 # First get the data
 getwd()
-setwd("~/Dropbox/Jaime M/Projects_JM/Muenster/Lindeza/")
+#setwd("~/Dropbox/Jaime M/Projects_JM/Muenster/Lindeza/")
 list.files()
 data <- read_excel("data/Larvae density_Larvae and adults.xlsx")
+names(data)[c(4,5)]
 names(data)[c(4,5)] <- c("larvae","adults")
 
 head(data)
@@ -90,53 +91,53 @@ library(brms)
 
 
 plot(larvae ~ Generation, col = Treat, df)
-
-# Exploratory model, I am using the treatment as random effects
-
-df$G1 = df$Generation - 4
-df$G2 = df$Generation^2 - 4^2 
-
-# Exploratory model, I am using the treatment as random effects
-
-levels(df$Treat)
 # 
-# f1 <- bf(larvae ~  G1*Regime + G2  +  A1 + (1|Treat), family = poisson())
-# f2 <- bf()
-# mod4 <- brm(f1 + f2,  data = df, 
-#             control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 4, chains = 4)
-# summary(mod4)
+# # Exploratory model, I am using the treatment as random effects
 # 
+# df$G1 = df$Generation - 4
+# df$G2 = df$Generation^2 - 4^2 
 # 
-# mod5 <- brm(f2,  data = df, 
-#             control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 4, chains = 4)
-# summary(mod5)
+# # Exploratory model, I am using the treatment as random effects
 # 
-
-mod6 <- brm(A2 ~  adults * Regime  + (1|Treat), family = poisson(),  data = df, 
-            control = list(max_treedepth = 10, adapt_delta = 0.92), iter = 4000, cores = 4, chains = 4)
-summary(mod6)
-
-plot((A2) ~ (larvae), col = Regime, df)
-
-names(df)
-cor(df[, c(4,9:12)])
-plot(mod6)
-p_means = apply(posterior_predict(mod6), 2, mean)
-p_ci = t(apply(posterior_predict(mod6), 2, HPDI, prob =.95))
-plot(df$larvae ~ p_means, xlim = c(30, 200))
-abline(0,1)
-segments(x0 = p_ci[,1], x1 = p_ci[,2], y0 = df$larvae, y1 = df$larvae)
-
-
-
-#
+# levels(df$Treat)
+# # 
+# # f1 <- bf(larvae ~  G1*Regime + G2  +  A1 + (1|Treat), family = poisson())
+# # f2 <- bf()
+# # mod4 <- brm(f1 + f2,  data = df, 
+# #             control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 4, chains = 4)
+# # summary(mod4)
+# # 
+# # 
+# # mod5 <- brm(f2,  data = df, 
+# #             control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 4, chains = 4)
+# # summary(mod5)
+# # 
+# 
+# # mod6 <- brm(A2 ~  adults * Regime  + (1|Treat), family = poisson(),  data = df, 
+# #             control = list(max_treedepth = 10, adapt_delta = 0.92), iter = 4000, cores = 4, chains = 4)
+# # summary(mod6)
+# # 
+# # plot((A2) ~ (larvae), col = Regime, df)
+# # 
+# # names(df)
+# # cor(df[, c(4,9:12)])
+# # plot(mod6)
+# # p_means = apply(posterior_predict(mod6), 2, mean)
+# # p_ci = t(apply(posterior_predict(mod6), 2, HPDI, prob =.95))
+# # plot(df$larvae ~ p_means, xlim = c(30, 200))
+# # abline(0,1)
+# # segments(x0 = p_ci[,1], x1 = p_ci[,2], y0 = df$larvae, y1 = df$larvae)
+# # 
+# # 
+# 
+# #
 
 
 data$Gen = factor(paste("G-",data$Generation, sep=""))
-
 levels(data$Gen) = c("G3", "G4", "G5", "G6", "G7", "G8", "G9")
 
-mod0 <- brm(larvae ~  Gen*Regime  + (1|Treat), family = poisson() ,data = data, 
+
+mod0 <- brm(larvae ~ 0 +  Gen:Regime  + (1|Treat), family = poisson() ,data = data, 
             control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 6, chains = 4)
 
 summary(mod0)
@@ -144,103 +145,126 @@ summary(mod0)
 conditional_effects(mod0, effects = "Gen:Regime")
 
 
-
-mod1 <- brm(larvae ~  G1*Regime + G2  +  A1 + (1|Treat), family = poisson() ,data = df, 
-            control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 6, chains = 4)
-
-plot(mod1)
-p_means = apply(posterior_predict(mod1), 2, mean)
-p_ci = t(apply(posterior_predict(mod1), 2, HPDI, prob =.95))
-plot(df$larvae ~ p_means, xlim = c(30, 200))
-abline(0,1)
-segments(x0 = p_ci[,1], x1 = p_ci[,2], y0 = df$larvae, y1 = df$larvae)
+###
 
 
 
-mod2 <- brm(larvae ~  G1*Regime + G2  +  (1|Treat), family = poisson() ,data = df, 
-            control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 6, chains = 4)
+post = posterior_samples(mod0)
 
-plot(mod2)
-p_means = apply(posterior_predict(mod2), 2, mean)
-p_ci = t(apply(posterior_predict(mod2), 2, HPDI, prob =.95))
-plot(df$larvae ~ p_means, xlim = c(30, 200))
-abline(0,1)
-segments(x0 = p_ci[,1], x1 = p_ci[,2], y0 = df$larvae, y1 = df$larvae)
+post = exp(post[,1:21])
+str(post)
 
+sumPred = as.data.frame(precis(post, prob = .95))
 
-df$G3 <- df$Generation^3 - 4^3
-mod3 <- brm(larvae ~  G1*Regime + G2 + G3  +  (1|Treat), family = poisson() ,data = df, 
-            control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 6, chains = 4)
-
-summary(mod3)
-plot(mod3)
-p_means = apply(posterior_predict(mod3), 2, mean)
-p_ci = t(apply(posterior_predict(mod3), 2, HPDI, prob =.95))
-plot(df$larvae ~ p_means, xlim = c(30, 200))
-abline(0,1)
-segments(x0 = p_ci[,1], x1 = p_ci[,2], y0 = df$larvae, y1 = df$larvae)
+sumPred$L68 = precis(post, prob = .68)[,3]
+sumPred$U68 = precis(post, prob = .68)[,4]
 
 
+sumPred$Gen = factor(rownames(sumPred))
+sumPred$Gen <- rep(c("3","4","5","6","7","8", "9"), 3)
+sumPred$Regime <-  c(rep("Control", 7), rep("Matched", 7), rep("Unmatched", 7))
 
-plot(p_means ~ df$Generation)
-
-conditional_effects(mod3, effects = "G1:Regime")
+# Get the predictions for each 
 
 
-post = data.frame(posterior_samples(mod3))
+df_pred = sumPred
 
-sum = as.data.frame(precis(post, prob = .95, digits = 3, depth = 2 ))
-
-write.csv(sum, "Parameter estimations.csv")
 
 ##
 
-p_link <- function(post, Generations, Matched, Unmatched){
+names(df_pred)
+names(df_pred)[c(1,3,4)] <- c("larvae","L95", "U95")
+
+
+pd = position_dodge(0.75)
+(mPlot = ggplot(df_pred, aes(x=Gen, y=larvae, colour=Regime, group =Regime )) + 
+    geom_errorbar(aes(ymin=L95, ymax=U95), width=.1, position=pd, alpha =1, size = 0.4) +
+    geom_errorbar(aes(ymin=L68, ymax=U68), width=.1, position=pd, alpha =1, size = 1.2) +
+    geom_line(position=pd, size = 0.5) +
+    geom_point(position=pd, size = 2.5) 
   
-  G1 = Generations - 4
-  G2 =  Generations^2 - 4^2
-  G3 =  Generations^3 - 4^3
-  U = Unmatched
-  M = Matched
-  out <- with(post, b_Intercept + b_G1*G1 + b_RegimeMatched* M + b_RegimeUnmatched * U + b_G2*G2 + b_G3*G3 +
-                b_G1.RegimeMatched * G1 * M + b_G1.RegimeUnmatched * G1 * U)
-  return(exp(out))
-}
+)
+
+pointdata = data
+pointdata$larvae
+levels(pointdata$Gen) <- c("3","4","5","6","7","8", "9")
+
+(mPlot + geom_point(data = pointdata, 
+                             mapping = aes(x=Gen, y=larvae, colour=Regime),
+                             position = position_jitterdodge(dodge.width=0.75),
+                             size = 0.75, alpha = 0.3) +
+    theme_bw() + theme(panel.grid.major = element_blank()) + 
+    scale_color_manual(values=c("grey", "black", "red")) + 
+    ylab("Larvae (N)") +
+    xlab("Generation") 
+  )
 
 
-### Plot overall results for now
-jpeg(file = "Figure 1.jpeg",width = 6.0, height = 5.0, units='in', res=800)
+png("plots/Figure-Larvae.png", res = 1000, width = 180*0.7, height = 115*0.7, units = "mm", pointsize = 10)
+
+(mPlot + geom_point(data = pointdata, 
+                    mapping = aes(x=Gen, y=larvae, colour=Regime),
+                    position = position_jitterdodge(dodge.width=0.75),
+                    size = 0.3, alpha = 1) +
+    theme_bw() + theme(panel.grid.major = element_blank(), legend.position = c(0.85, .8)) + 
+    scale_color_manual(values=c("grey", "black", "red")) + 
+    ylab("Larvae (N)") +
+    xlab("Generation") 
+)
 
 
-Gen = 4:9
-
-p.Control = sapply(1:length(Gen), function(i) p_link(post= post, Generations = Gen[i], Matched = 0, Unmatched = 0))
-p_means = apply(p.Control, 2, mean)
-p_ci = (apply(p.Control, 2, HPDI, prob =.95))
-
-length(p_means)
-
-plot(p_means ~ Gen, pch = "", ylim = c(50, 170), ylab = "Number of Larvae", xlab = "Generations")
-lines(p_means ~ Gen, col = 'orange', lwd = 2)
-shade(p_ci, Gen, col = col.alpha('orange', 0.2))
-
-
-p.Match = sapply(1:length(Gen), function(i) p_link(post= post, Generations = Gen[i], Matched = 1, Unmatched = 0))
-p_means = apply(p.Match, 2, mean)
-p_ci = (apply(p.Match, 2, HPDI, prob =.95))
-
-lines(p_means ~ Gen, col = 'black', lwd = 2)
-shade(p_ci, Gen, col = col.alpha('black', 0.2))
-
-
-p.UnMatch = sapply(1:length(Gen), function(i) p_link(post= post, Generations = Gen[i], Matched = 0, Unmatched = 1))
-p_means = apply(p.UnMatch, 2, mean)
-p_ci = (apply(p.UnMatch, 2, HPDI, prob =.95))
-
-lines(p_means ~ Gen, col = 'blue', lwd = 2)
-shade(p_ci, Gen, col = col.alpha('blue', 0.2))
-
-
-
-legend('topleft',c('Control','Matched', "Unmatched"), lty = 1,  col=c('orange', 'black', 'blue'),bty='n',cex=1.25)
 graphics.off()
+
+# Now what should we test? 
+
+
+
+df_contrast = data.frame(G3M = post$`b_GenG3:RegimeMatched` / post$`b_GenG3:RegimeControl`,
+                         G4M = post$`b_GenG4:RegimeMatched` / post$`b_GenG4:RegimeControl`,
+                         G5M = post$`b_GenG5:RegimeMatched` / post$`b_GenG5:RegimeControl`,
+                         G6M = post$`b_GenG6:RegimeMatched` / post$`b_GenG6:RegimeControl`,
+                         G7M = post$`b_GenG7:RegimeMatched`/ post$`b_GenG7:RegimeControl`,
+                         G8M = post$`b_GenG8:RegimeMatched` / post$`b_GenG8:RegimeControl`,
+                         G9M = post$`b_GenG9:RegimeMatched` / post$`b_GenG9:RegimeControl`,
+                         
+                         G3U = post$`b_GenG3:RegimeUnmatched` / post$`b_GenG3:RegimeControl`,
+                         G4U = post$`b_GenG4:RegimeUnmatched` / post$`b_GenG4:RegimeControl`,
+                         G5U = post$`b_GenG5:RegimeUnmatched` / post$`b_GenG5:RegimeControl`,
+                         G6U = post$`b_GenG6:RegimeUnmatched` / post$`b_GenG6:RegimeControl`,
+                         G7U = post$`b_GenG7:RegimeUnmatched` / post$`b_GenG7:RegimeControl`,
+                         G8U = post$`b_GenG8:RegimeUnmatched` / post$`b_GenG8:RegimeControl`,
+                         G9U = post$`b_GenG9:RegimeUnmatched` / post$`b_GenG9:RegimeControl`
+                         
+)
+
+df_contrast = log(df_contrast)
+
+
+contrast_tab = cbind(precis(df_contrast, prob = 0.95), precis(df_contrast, prob = 0.68)[,3:4])
+names(contrast_tab)[c(3,4,6,7)] <- c("L95", "U95", "L68", "U68" )
+contrast_tab$Gen = rownames(contrast_tab)
+contrast_tab$Gen = rep(c("3","4","5","6","7","8","9"),2)
+contrast_tab$Contrast = c(rep("Matched-Control",7), rep("Unmatched-Control",7))
+contrast_tab$LOS = apply(df_contrast,2, LOS)
+
+
+
+fp <- ggplot(data=contrast_tab, aes(x=Gen, y=mean, ymin=L95, ymax=U95, colour = Contrast)) +
+  geom_pointrange(size = 0.5, position = pd) + 
+  geom_errorbar(aes(ymin=L68, ymax=U68), width=.1, position=pd, alpha =1, size = 1.2) +
+  geom_hline(yintercept=0, lty=2) +  # add a dotted line at x=1 after flip
+  coord_flip() +  # flip coordinates (puts labels on y axis)
+  xlab("Generation") + ylab("Effect size (LRR, 68% and 95% CI)") +
+  theme_bw() + theme( legend.position = c(0.2, .15) ) + 
+  scale_color_manual(values=c("black", "red")) 
+
+print(fp)
+
+png("plots/Figure-Contrast.png", res = 1000, width = 180*0.7, height = 115*0.7, units = "mm", pointsize = 10)
+
+fp
+
+graphics.off()
+
+contrast_tab
+
