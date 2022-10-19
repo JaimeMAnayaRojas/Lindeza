@@ -201,7 +201,7 @@ plotA <- mPlot + geom_point(data = pointdata,
                              position = position_jitterdodge(dodge.width=0.75),
                              size = 0.75, alpha = 0.3) +
     theme_bw() + theme(panel.grid.major = element_blank(), legend.position = c(0.85, .8)) + 
-    scale_color_manual(values=c("grey", "black", "red")) + 
+    scale_color_manual(values=c("grey", "blue", "orange")) + 
     ylab("Larvae (N)") +
     xlab("Generation") +
   geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -2, ymax = 255), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
@@ -260,18 +260,20 @@ df_los$Gen = factor(df_los$Gen)
 df_los$y = -2
 ##
 
-plotB <- ggplot(data=contrast_tab, aes(x=Gen, y=mean, ymin=L95, ymax=U95, colour = Contrast)) +
+(plotB <- ggplot(data=contrast_tab, aes(x=Gen, y=mean, ymin=L95, ymax=U95, colour = Contrast)) +
   geom_pointrange(size = 0.5, position = pd) + 
   geom_errorbar(aes(ymin=L68, ymax=U68), width=.1, position=pd, alpha =1, size = 1.2) +
   geom_hline(yintercept=0, lty=1, colour = "gray") +  # add a dotted line at x=1 after flip
   xlab("Generation") + ylab("Effect size (LRR)") +
   theme_bw() + theme(panel.grid.major = element_blank(), legend.position = "none" ) + 
-  scale_color_manual(values=c("black", "red")) 
-plotB <- plotB + geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
+  scale_color_manual(values=c("blue", "orange")) 
+)
+
+(plotB <- plotB + geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
   geom_rect(aes(xmin = 2.5, xmax = 3.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
   geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = -1.5, ymax = 1.2),  fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
   geom_rect(aes(xmin = 6.5, xmax = 7.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) 
-  
+)  
 
 plotB
 
@@ -281,6 +283,9 @@ figure <- ggarrange(plotA, plotB,
                     ncol = 1, nrow = 2)
 figure
 
-png("plots/Figure-Larvae.png", res = 1000, width = 180*0.7, height = 115*2, units = "mm", pointsize = 10)
+?ggarrange()
+png("plots/Figure-Larvae.png", res = 1000, width = 105, height = 174, units = "mm", pointsize = 10)
 figure
 graphics.off()
+
+ggsave(filename = "plots/Figure-Larvae.svg", plot = figure, device = "svg", width = 105, height = 174, units = "mm" )
