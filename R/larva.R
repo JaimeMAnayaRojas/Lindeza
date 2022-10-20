@@ -143,6 +143,7 @@ plot(larvae ~ Generation, col = Treat, df)
 data$Gen = factor(paste("G-",data$Generation, sep=""))
 levels(data$Gen) = c("G3", "G4", "G5", "G6", "G7", "G8", "G9")
 
+levels(data$Treat)
 
 mod0 <- brm(larvae ~ 0 +  Gen:Regime  + (1|Treat), family = poisson() ,data = data, 
             control = list(max_treedepth = 15, adapt_delta = 0.92), iter = 4000, cores = 6, chains = 4)
@@ -155,18 +156,21 @@ conditional_effects(mod0, effects = "Gen:Regime")
 ###
 
 
+post0 = posterior_samples(mod0)
+str(post0)
+
+
+
+
+
 
 post = posterior_samples(mod0)
-
 post = exp(post[,1:21])
 str(post)
 
 sumPred = as.data.frame(precis(post, prob = .95))
-
 sumPred$L68 = precis(post, prob = .68)[,3]
 sumPred$U68 = precis(post, prob = .68)[,4]
-
-
 sumPred$Gen = factor(rownames(sumPred))
 sumPred$Gen <- rep(c("3","4","5","6","7","8", "9"), 3)
 sumPred$Regime <-  c(rep("Control", 7), rep("Matched", 7), rep("Unmatched", 7))
@@ -196,12 +200,14 @@ pointdata = data
 pointdata$larvae
 levels(pointdata$Gen) <- c("3","4","5","6","7","8", "9")
 
+levels(pointdata$Regime)
+
 plotA <- mPlot + geom_point(data = pointdata, 
                              mapping = aes(x=Gen, y=larvae, colour=Regime),
                              position = position_jitterdodge(dodge.width=0.75),
                              size = 0.75, alpha = 0.3) +
     theme_bw() + theme(panel.grid.major = element_blank(), legend.position = c(0.85, .8)) + 
-    scale_color_manual(values=c("grey", "blue", "orange")) + 
+    scale_color_manual(values=c("#74a3dbff", "#aa2818ff", "#cb7f4eff")) + 
     ylab("Larvae (N)") +
     xlab("Generation") +
   geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -2, ymax = 255), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
@@ -263,10 +269,10 @@ df_los$y = -2
 (plotB <- ggplot(data=contrast_tab, aes(x=Gen, y=mean, ymin=L95, ymax=U95, colour = Contrast)) +
   geom_pointrange(size = 0.5, position = pd) + 
   geom_errorbar(aes(ymin=L68, ymax=U68), width=.1, position=pd, alpha =1, size = 1.2) +
-  geom_hline(yintercept=0, lty=1, colour = "gray") +  # add a dotted line at x=1 after flip
+  geom_hline(yintercept=0, lty=1, colour = "#74a3dbff") +  # add a dotted line at x=1 after flip
   xlab("Generation") + ylab("Effect size (LRR)") +
   theme_bw() + theme(panel.grid.major = element_blank(), legend.position = "none" ) + 
-  scale_color_manual(values=c("blue", "orange")) 
+  scale_color_manual(values=c("#aa2818ff", "#cb7f4eff")) 
 )
 
 (plotB <- plotB + geom_rect(aes(xmin = 0.5, xmax = 1.5, ymin = -1.5, ymax = 1.2), fill= "cyan",  inherit.aes = FALSE, alpha = 0.005) +
@@ -282,10 +288,5 @@ figure <- ggarrange(plotA, plotB,
                     label.x = -0.01, label.y = 1.05, common.legend = T,
                     ncol = 1, nrow = 2)
 figure
-
-?ggarrange()
-png("plots/Figure-Larvae.png", res = 1000, width = 105, height = 174, units = "mm", pointsize = 10)
-figure
-graphics.off()
 
 ggsave(filename = "plots/Figure-Larvae.svg", plot = figure, device = "svg", width = 105, height = 174, units = "mm" )
